@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+    ADMIN
+    USER
+}
+
+enum CampaignStatus {
+  PENDING
+  REJECTED
+  ACTIVE
+  SUCCESSFUL
+  COMPLETED
+  APPROVED
+}
+
+model User {
+  id                String   @id @default(cuid())
+  username          String   @unique
+  createdAt         DateTime @default(now())
+  walletAddress     String   @unique
+  role              Role     @default(USER)
+  campaigns         Campaign[]
+}
+
+model Campaign {
+  id                String          @id @default(cuid())
+  title             String
+  Description       String          @db.Text
+  imageUrls         String[]
+  goal              Float
+  deadline          DateTime
+  location          String?
+  status            CampaignStatus  @default(PENDING)
+  category          String
+  createdAt         DateTime        @default(now())
+  creatorId         String
+  creator           User            @relation(fields: [creatorId], references: [id])
+  contractAddress   String?
+}
